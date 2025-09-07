@@ -25,6 +25,8 @@ import kotlinx.coroutines.launch
 import java.text.SimpleDateFormat
 import java.util.*
 
+import com.example.tomatonotpotato.ui.timer.TimerPage
+
 // --- Data Model ---
 data class PomodoroState(
     val totalTimeMillis: Long,
@@ -103,79 +105,14 @@ class PomodoroViewModel : ViewModel() {
 
 
 
-// --- Composable ---
-@Composable
-fun PomodoroScreen(viewModel: PomodoroViewModel = viewModel()) {
-    val state by viewModel.state.collectAsState()
 
-    val formattedTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(
-        Date(state.timeLeftMillis)
-    )
-
-    val progress = state.timeLeftMillis.toFloat() / state.totalTimeMillis
-
-    Column(
-        modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(
-            text = formattedTime,
-            fontSize = 60.sp,
-            fontWeight = FontWeight.Bold
-        )
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Box(contentAlignment = Alignment.Center) {
-            CircularProgressIndicator(
-                progress = progress,
-                modifier = Modifier.size(200.dp),
-                color = if (state.isBreak) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary,
-                strokeWidth = 10.dp
-            )
-
-            Text(
-                text = if (state.isBreak) "Break" else "Focus",
-                fontSize = 20.sp
-            )
-        }
-
-        Spacer(modifier = Modifier.height(32.dp))
-
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(16.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Button(
-                onClick = { viewModel.toggleTimer() },
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = if (state.isRunning) MaterialTheme.colorScheme.secondary else MaterialTheme.colorScheme.primary
-                )
-            ) {
-                Text(
-                    text = if (state.isRunning) "Pause" else "Start",
-                    color = MaterialTheme.colorScheme.onPrimary
-                )
-            }
-
-            Button(
-                onClick = { viewModel.resetTimer() },
-                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-            ) {
-                Text("Reset", color = MaterialTheme.colorScheme.onError)
-            }
-
-        }
-    }
-}
 
 // --- MainActivity ---
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            PomodoroScreen()
+            TimerPage()
         }
     }
 }
@@ -183,6 +120,6 @@ class MainActivity : ComponentActivity() {
 // --- Preview ---
 @Preview(showBackground = true)
 @Composable
-fun PomodoroScreenPreview() {
-    PomodoroScreen()
+fun TimerScreenPreview() {
+    TimerPage()
 }

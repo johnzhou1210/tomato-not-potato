@@ -1,4 +1,4 @@
-package com.example.tomatonotpotato.ui.timer
+package com.example.tomatonotpotato.ui.pages
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -22,7 +22,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.example.tomatonotpotato.PomodoroViewModel
+import com.example.tomatonotpotato.viewmodels.PomodoroViewModel
 import java.text.SimpleDateFormat
 import java.util.Date
 import java.util.Locale

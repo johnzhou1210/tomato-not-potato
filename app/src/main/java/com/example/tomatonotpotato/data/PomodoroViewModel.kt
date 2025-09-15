@@ -135,9 +135,9 @@ class PomodoroViewModel(
 
         timerJob = viewModelScope.launch {
             while (_state.value.timeLeftMillis > 0 && _state.value.isRunning) {
-                delay(1)
+                delay(16L)
                 _state.value = _state.value.copy(
-                    timeLeftMillis = _state.value.timeLeftMillis - 1000
+                    timeLeftMillis = _state.value.timeLeftMillis - 16L
                 )
             }
             if (_state.value.timeLeftMillis <= 0) onTimerFinished()
@@ -151,7 +151,7 @@ class PomodoroViewModel(
 
     fun resetTimer() {
         timerJob?.cancel()
-        setTimer(25, false, BreakType.NONE, 0)
+        setTimer(1, false, BreakType.NONE, 0)
     }
 
     fun advanceToNextPhase() {

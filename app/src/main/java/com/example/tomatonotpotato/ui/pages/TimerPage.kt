@@ -1,5 +1,6 @@
 package com.example.tomatonotpotato.ui.pages
 
+import androidx.compose.animation.core.animateFloatAsState
 import com.example.tomatonotpotato.R // Replace with your actual package name
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
@@ -21,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.ProgressIndicatorDefaults
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
@@ -42,13 +44,18 @@ import java.util.Locale
 @Composable
 fun TimerPage(viewModel: PomodoroViewModel) {
     val state by viewModel.state.collectAsState()
-
-
     val formattedTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(
         Date(state.timeLeftMillis)
     )
 
-    val progress = state.timeLeftMillis.toFloat() / state.totalTimeMillis
+    val targetProgress = state.timeLeftMillis.toFloat() / state.totalTimeMillis
+    val animatedProgress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = ProgressIndicatorDefaults.ProgressAnimationSpec
+    )
+
+
+
 
     Column(
         modifier = Modifier.fillMaxSize(),
@@ -85,7 +92,7 @@ fun TimerPage(viewModel: PomodoroViewModel) {
 
         Box(contentAlignment = Alignment.Center) {
             CircularProgressIndicator(
-                progress = progress,
+                progress = animatedProgress,
                 modifier = Modifier.size(360.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 8.dp

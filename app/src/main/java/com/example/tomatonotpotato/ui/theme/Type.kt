@@ -34,14 +34,14 @@ val Typography = Typography(
     titleLarge = TextStyle(
         fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 28.sp,
+        fontSize = 40.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
         fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 14.5.sp,
+        fontSize = 14.sp,
         lineHeight = 16.sp,
         letterSpacing = -(2.0).sp
     )

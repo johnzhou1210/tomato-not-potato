@@ -1,5 +1,6 @@
 package com.example.tomatonotpotato.ui
 
+import SettingsPage
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
@@ -24,7 +25,6 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
 import com.example.tomatonotpotato.data.AppOpenRepository
 import com.example.tomatonotpotato.ui.pages.HistoryPage
-import com.example.tomatonotpotato.ui.pages.SettingsPage
 import com.example.tomatonotpotato.data.PomodoroViewModel
 
 

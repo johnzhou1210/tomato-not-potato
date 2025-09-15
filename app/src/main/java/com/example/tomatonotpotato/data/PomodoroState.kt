@@ -5,5 +5,6 @@ data class PomodoroState(
     val totalTimeMillis: Long,
     val timeLeftMillis: Long,
     val isRunning: Boolean,
-    val isBreak: Boolean
+    val breakType: BreakType,
+    val currentPhase: Int
 )

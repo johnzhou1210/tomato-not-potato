@@ -5,30 +5,45 @@ import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontFamily
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.sp
+import com.example.tomatonotpotato.ui.pages.CustomFontFamily
 
 // Set of Material typography styles to start with
 val Typography = Typography(
     bodyLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+        fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
-    )
-    /* Other default text styles to override
-    titleLarge = TextStyle(
-        fontFamily = FontFamily.Default,
+    ),
+    displayLarge = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 64.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    bodyMedium = TextStyle(
+        fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 22.sp,
+        fontSize = 16.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.8.sp
+    ),
+    // Other default text styles to override
+    titleLarge = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 28.sp,
         lineHeight = 28.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
-        fontFamily = FontFamily.Default,
-        fontWeight = FontWeight.Medium,
-        fontSize = 11.sp,
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 14.5.sp,
         lineHeight = 16.sp,
-        letterSpacing = 0.5.sp
+        letterSpacing = -(2.0).sp
     )
-    */
+
 )

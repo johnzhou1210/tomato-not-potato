@@ -11,7 +11,10 @@ import com.example.tomatonotpotato.data.PomodoroViewModelFactory
 import com.example.tomatonotpotato.ui.TimerApp
 import com.example.tomatonotpotato.ui.theme.TomatoNotPotatoTheme
 import com.example.tomatonotpotato.data.PomodoroViewModel
+import com.example.tomatonotpotato.data.SettingsViewModel
+import com.example.tomatonotpotato.data.SettingsViewModelFactory
 import com.example.tomatonotpotato.data.UserStatsRepository
+import com.example.tomatonotpotato.data.dataStore
 import kotlinx.coroutines.launch
 
 
@@ -23,20 +26,20 @@ class MainActivity : ComponentActivity() {
         val appOpenRepository = AppOpenRepository(appOpenDayDao)
         val userStatsDao = DatabaseProvider.getDatabase(applicationContext).userStatsDao()
         val userStatsRepository = UserStatsRepository(userStatsDao)
-
+        val pomodoroDao = DatabaseProvider.getDatabase(applicationContext).pomodoroDao()
+        val pomodoroFactory = PomodoroViewModelFactory(pomodoroDao, userStatsRepository, appOpenRepository)
+        val settingsViewModelFactory = SettingsViewModelFactory(applicationContext.dataStore)
 
         lifecycleScope.launch {
             appOpenRepository.logToday()
         }
 
-
-
         setContent {
-            val pomodoroDao = DatabaseProvider.getDatabase(applicationContext).pomodoroDao()
-            val factory = PomodoroViewModelFactory(pomodoroDao, userStatsRepository, appOpenRepository)
-            val viewModel: PomodoroViewModel = viewModel(factory = factory)
-            TomatoNotPotatoTheme(viewModel = viewModel) {
-                TimerApp(viewModel = viewModel)
+
+            val settingsViewModel: SettingsViewModel = viewModel(factory = settingsViewModelFactory)
+            val pomodoroViewModel: PomodoroViewModel = viewModel(factory = pomodoroFactory)
+            TomatoNotPotatoTheme(pomodoroViewModel = pomodoroViewModel, settingsViewModel = settingsViewModel) {
+                TimerApp(viewModel = pomodoroViewModel, settingsViewModel = settingsViewModel)
             }
         }
     }

@@ -56,9 +56,11 @@ dependencies {
 
     implementation("androidx.lifecycle:lifecycle-viewmodel-compose:2.8.4")
     implementation("androidx.compose.material:material-icons-extended")
+    implementation("androidx.datastore:datastore-preferences:1.0.0")
 
     implementation("com.kizitonwose.calendar:compose:2.6.1")
     implementation(libs.androidx.databinding.adapters)
+    implementation(libs.androidx.datastore.core)
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")

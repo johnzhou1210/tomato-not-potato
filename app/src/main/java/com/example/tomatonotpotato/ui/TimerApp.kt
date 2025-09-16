@@ -26,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import com.example.tomatonotpotato.data.AppOpenRepository
 import com.example.tomatonotpotato.ui.pages.HistoryPage
 import com.example.tomatonotpotato.data.PomodoroViewModel
+import com.example.tomatonotpotato.data.SettingsViewModel
 
 
 sealed class Screen(val route: String) {
@@ -36,7 +37,7 @@ sealed class Screen(val route: String) {
 
 
 @Composable
-fun TimerApp(viewModel: PomodoroViewModel = viewModel()) {
+fun TimerApp(viewModel: PomodoroViewModel = viewModel(), settingsViewModel: SettingsViewModel = viewModel()) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Timer.route
@@ -96,7 +97,7 @@ fun TimerApp(viewModel: PomodoroViewModel = viewModel()) {
             NavHost(navController = navController, startDestination = Screen.Timer.route) {
                 composable(Screen.Timer.route) { TimerPage(viewModel) }
                 composable(Screen.History.route) { HistoryPage(viewModel) }
-                composable(Screen.Settings.route) { SettingsPage() }
+                composable(Screen.Settings.route) { SettingsPage( settingsViewModel) }
             }
         }
     }

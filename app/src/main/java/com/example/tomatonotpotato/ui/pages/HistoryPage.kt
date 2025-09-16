@@ -4,6 +4,7 @@ package com.example.tomatonotpotato.ui.pages
 import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -15,7 +16,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
@@ -25,25 +25,23 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.painter.Painter
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
-import com.kizitonwose.calendar.core.CalendarDay
 import com.example.tomatonotpotato.R
 import com.example.tomatonotpotato.data.PomodoroRecord
-import com.example.tomatonotpotato.ui.theme.BreakColors
-import com.example.tomatonotpotato.ui.theme.FocusColors
 import com.example.tomatonotpotato.data.PomodoroViewModel
+import com.example.tomatonotpotato.ui.theme.BreakColorsLight
+import com.example.tomatonotpotato.ui.theme.FocusColorsLight
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
-
-
+import com.kizitonwose.calendar.core.CalendarDay
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -125,7 +123,7 @@ fun PomodoroCalendar(
             )
             OverviewItem(
                 topContent = "$totalPomodori",
-                bottomContent = "Total Pomodori"
+                bottomContent = "Total pomodori"
             )
 
         }
@@ -146,6 +144,7 @@ fun PomodoroCalendar(
             Text(
                 text = formatDate(currentDaySelection.value.toString()),
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
 //                textAlign = TextAlign.Start
             )
@@ -155,6 +154,7 @@ fun PomodoroCalendar(
                     history[currentDaySelection.value]?.completedSessions ?: 0
                 } pomodori",
                 style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
 //                textAlign = TextAlign.End
             )
@@ -192,13 +192,18 @@ fun Day(
             .clip(RoundedCornerShape(20.dp))
             .background(
                 when {
-                    count > 0 && day.date == today -> FocusColors.primary
-                    count > 0 -> FocusColors.primary.copy(alpha = 0.4f)
+                    count > 0 && day.date == today -> FocusColorsLight.primary
+                    count > 0 -> FocusColorsLight.primary.copy(alpha = 0.4f)
                     day.date > today -> MaterialTheme.colorScheme.surfaceVariant
-                    day.date == today -> FocusColors.secondary.copy(alpha = 0.3f)
+                    day.date == today -> FocusColorsLight.secondary.copy(alpha = 0.3f)
                     !isInstalled -> MaterialTheme.colorScheme.surfaceVariant
-                    else -> BreakColors.primary.copy(alpha = 0.25f)
+                    else -> BreakColorsLight.primary.copy(alpha = 0.25f)
                 }
+            ).border(
+                width =  2.dp,
+                color = if (currentDaySelection.value == day.date) MaterialTheme.colorScheme.onSurfaceVariant else Color.Transparent,
+                shape = RoundedCornerShape(20.dp),
+
             )
             .clickable {
                 currentDaySelection.value = day.date
@@ -207,7 +212,7 @@ fun Day(
     ) {
         when {
             count > 0 -> SelectableImage(
-                painter = painterResource(R.drawable.tomato),
+                painter = painterResource(R.drawable.tomato_high),
                 contentDescription = null,
                 modifier = Modifier,
                 selected = currentDaySelection.value == day.date
@@ -220,12 +225,8 @@ fun Day(
                 selected = currentDaySelection.value == day.date
             )
 
-            else -> SelectableImage(
-                painter = painterResource(R.drawable.ic_launcher_foreground),
-                contentDescription = null,
-                modifier = Modifier,
-                selected = currentDaySelection.value == day.date
-            )
+            else -> {}
+
         }
     }
 }
@@ -236,7 +237,7 @@ fun formatDate(dateString: String): String {
     // Parse the input string into a LocalDate object
     val date = LocalDate.parse(dateString, inputFormatter)
     // Define the desired output format
-    val outputFormatter = DateTimeFormatter.ofPattern("MMM dd, yyyy", Locale.getDefault())
+    val outputFormatter = DateTimeFormatter.ofPattern("MMM d, yyyy", Locale.getDefault())
     // Format the date and return the result
     return date.format(outputFormatter)
 }

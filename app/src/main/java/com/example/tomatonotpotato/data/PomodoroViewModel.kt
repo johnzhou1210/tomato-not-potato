@@ -27,7 +27,7 @@ class PomodoroViewModel(
     private val appOpenRepository: AppOpenRepository
 ) : ViewModel() {
     companion object {
-        var TODAY = LocalDate.of(2025, 9, 6) // test // For testing only
+        var TODAY = LocalDate.of(2025, 9, 12) // test // For testing only
     }
 
     private val _state = MutableStateFlow(

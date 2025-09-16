@@ -10,6 +10,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
@@ -33,6 +34,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.tomatonotpotato.R.drawable.tomato_high
 import com.example.tomatonotpotato.ui.Dot
 import com.example.tomatonotpotato.data.BreakType
 import com.example.tomatonotpotato.data.PomodoroViewModel
@@ -100,11 +102,10 @@ fun TimerPage(viewModel: PomodoroViewModel) {
 
             Image(
                 painter = if (state.breakType != BreakType.NONE) painterResource(id = R.drawable.potato_small) else painterResource(
-                    id = R.drawable.tomato
+                    id = tomato_high,
                 ),
                 contentDescription = null,
-                modifier = Modifier.size(400.dp)
-            )
+                modifier = Modifier.size(400.dp).offset(if (state.breakType == BreakType.NONE) (-8).dp else (0).dp))
 
 
         }
@@ -115,31 +116,6 @@ fun TimerPage(viewModel: PomodoroViewModel) {
             horizontalArrangement = Arrangement.spacedBy(48.dp),
             verticalAlignment = Alignment.CenterVertically
         ) {
-//            Button(
-//                modifier = Modifier.padding(8.dp),
-//                onClick = { viewModel.resetTimer() },
-//                shape = RoundedCornerShape(20.dp),
-//                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error)
-//            ) {
-//                Text("Reset", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onError)
-//            }
-
-
-//            Button(
-//                modifier = Modifier.padding(8.dp),
-//                onClick = { viewModel.toggleTimer() },
-//                shape = RoundedCornerShape(20.dp),
-//                colors = ButtonDefaults.buttonColors(
-//                    containerColor = if (state.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.secondary
-//                )
-//            ) {
-//                Text(
-//                    text = if (state.isRunning) "Pause" else "Start",
-//                    style = MaterialTheme.typography.bodyMedium,
-//                    color = MaterialTheme.colorScheme.onPrimary
-//                )
-//            }
-
             IconButton(
                 onClick = { viewModel.resetTimer() },
                 modifier = Modifier.size(42.dp),

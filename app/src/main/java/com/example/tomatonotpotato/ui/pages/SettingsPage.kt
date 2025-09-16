@@ -9,6 +9,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -17,17 +18,22 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tomatonotpotato.data.SettingsViewModel
 
 @Preview
 @Composable
-fun SettingsPage() {
+fun SettingsPage(settingsViewModel: SettingsViewModel = viewModel()) {
+    // Collect the isDarkMode state from the ViewModel
+    val isDarkMode by settingsViewModel.isDarkMode.collectAsState(initial = false)
+
     // 1. Define a list of SettingItem objects, not just strings.
     val settingsItems: List<SettingItem> = listOf(
         SettingItem.SwitchSetting(
             title = "Dark mode",
             description = "Enable or disable dark mode",
-            isChecked = false,
-            onCheckedChange = {}
+            isChecked = isDarkMode,
+            onCheckedChange = { settingsViewModel.toggleDarkMode();  }
         ),
         SettingItem.SwitchSetting(
             title = "Notifications",
@@ -61,7 +67,7 @@ fun SettingsPage() {
     )
 
     Column(
-        modifier = Modifier.padding(8.dp),
+        modifier = Modifier.padding(vertical = 4.dp, horizontal = 16.dp),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(text = "Settings", style = MaterialTheme.typography.titleLarge)
@@ -99,6 +105,7 @@ fun SettingsPage() {
         }
     }
 }
+
 
 
 @Composable

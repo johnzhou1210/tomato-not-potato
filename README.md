@@ -1,2 +1,2 @@
 # tomato-not-potato
-A practical pomodoro timer for Android.
+A practical Pomodoro timer for Android.

@@ -17,6 +17,7 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -37,7 +38,7 @@ sealed class Screen(val route: String) {
 
 
 @Composable
-fun TimerApp(viewModel: PomodoroViewModel = viewModel(), settingsViewModel: SettingsViewModel = viewModel()) {
+fun TimerApp(pomodoroViewModel: PomodoroViewModel = viewModel(), settingsViewModel: SettingsViewModel = viewModel()) {
     val navController = rememberNavController()
     val navBackStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry?.destination?.route ?: Screen.Timer.route
@@ -77,7 +78,6 @@ fun TimerApp(viewModel: PomodoroViewModel = viewModel(), settingsViewModel: Sett
                                 )
                             }
                         },
-                        label = { Text(screen.route, style = MaterialTheme.typography.bodyMedium) },
                         selected = currentRoute == screen.route,
                         onClick = {
                             navController.navigate(screen.route) {
@@ -91,13 +91,13 @@ fun TimerApp(viewModel: PomodoroViewModel = viewModel(), settingsViewModel: Sett
                     )
                 }
             }
-        }
+        },
     ) { innerPadding ->
-        Box(modifier = Modifier.padding(innerPadding)) {
+        Box(modifier = Modifier.padding(innerPadding).padding(horizontal = 0.dp)) {
             NavHost(navController = navController, startDestination = Screen.Timer.route) {
-                composable(Screen.Timer.route) { TimerPage(viewModel) }
-                composable(Screen.History.route) { HistoryPage(viewModel) }
-                composable(Screen.Settings.route) { SettingsPage( settingsViewModel) }
+                composable(Screen.Timer.route) { TimerPage(pomodoroViewModel = pomodoroViewModel) }
+                composable(Screen.History.route) { HistoryPage(pomodoroViewModel = pomodoroViewModel) }
+                composable(Screen.Settings.route) { SettingsPage(settingsViewModel= settingsViewModel) }
             }
         }
     }

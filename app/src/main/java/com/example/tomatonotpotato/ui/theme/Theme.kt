@@ -21,7 +21,8 @@ fun TomatoNotPotatoTheme(
     content: @Composable () -> Unit
 ) {
     val state by pomodoroViewModel.state.collectAsState()
-    val isDarkMode by settingsViewModel.isDarkMode.collectAsState()
+    val pomodoroTimerSettings by settingsViewModel.pomodoroTimerSettings.collectAsState()
+    val isDarkMode = pomodoroTimerSettings.isDarkMode
     val colors  = when {
         isDarkMode -> { // Dark mode
            if (state.breakType != BreakType.NONE) BreakColorsDark else FocusColorsDark
@@ -34,6 +35,6 @@ fun TomatoNotPotatoTheme(
     MaterialTheme(
         colorScheme = colors,
         typography = Typography,
-        content = content
+        content = content,
     )
 }

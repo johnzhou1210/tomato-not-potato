@@ -40,8 +40,10 @@ import com.example.tomatonotpotato.ui.theme.BreakColorsLight
 import com.example.tomatonotpotato.ui.theme.FocusColorsLight
 import com.kizitonwose.calendar.compose.CalendarState
 import com.kizitonwose.calendar.compose.HorizontalCalendar
+import com.kizitonwose.calendar.compose.VerticalCalendar
 import com.kizitonwose.calendar.compose.rememberCalendarState
 import com.kizitonwose.calendar.core.CalendarDay
+import com.kizitonwose.calendar.core.daysOfWeek
 import java.time.LocalDate
 import java.time.YearMonth
 import java.time.format.DateTimeFormatter
@@ -50,26 +52,27 @@ import java.util.Locale
 private val daySize = 18.dp
 
 @Composable
-fun HistoryPage(viewModel: PomodoroViewModel = viewModel()) {
+fun HistoryPage(pomodoroViewModel: PomodoroViewModel = viewModel()) {
 //    val today = remember { LocalDate.now() }
     val today = PomodoroViewModel.TODAY
+    val oldestDate by pomodoroViewModel.oldestDate.collectAsState()
     // Ensure range covers 2 weeks before and after today
-    val startMonth = remember { YearMonth.from(today.minusWeeks(2)) }
-    val endMonth = remember { YearMonth.from(today.plusWeeks(2)) }
+    val startMonth = remember { YearMonth.from(oldestDate) ?: today }
+    val endMonth = remember { YearMonth.from(today) }
 
     val currentDaySelection = remember { mutableStateOf(today) }
 
     val state = rememberCalendarState(
-        startMonth = startMonth,
+        startMonth = startMonth as YearMonth,
         endMonth = endMonth,
         firstVisibleMonth = YearMonth.from(today),
     )
 
-    val oldestDate by viewModel.oldestDate.collectAsState()
+
 
     PomodoroCalendar(
         state = state,
-        viewModel = viewModel,
+        viewModel = pomodoroViewModel,
         today = today,
         oldestDate = oldestDate,
         currentDaySelection = currentDaySelection
@@ -100,6 +103,9 @@ fun PomodoroCalendar(
 ) {
     val records by viewModel.records.collectAsState()
     val totalPomodori by viewModel.totalPomodori.collectAsState()
+    val pomodoroTimerSettings = viewModel.pomodoroTimerSettings.collectAsState()
+
+    val goal = pomodoroTimerSettings.value.dailyPomodoriGoal
     val history = remember(records) {
         records.associateBy { it.date }
     }
@@ -109,11 +115,12 @@ fun PomodoroCalendar(
 
     Column(
         modifier = Modifier
-            .padding(all = 32.dp)
+            .padding(all = 16.dp)
             .fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally,
     ) {
-        Text(text = "History", style = MaterialTheme.typography.titleLarge)
+        Spacer(modifier = Modifier.height(36.dp))
+        Text(text = "History", style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(128.dp))
         Row {
             OverviewItem(topContent = "$currStreak", bottomContent = "Current streak")
@@ -123,7 +130,7 @@ fun PomodoroCalendar(
             )
             OverviewItem(
                 topContent = "$totalPomodori",
-                bottomContent = "Total pomodori"
+                bottomContent = "Total Pomodori"
             )
 
         }
@@ -133,7 +140,7 @@ fun PomodoroCalendar(
             state = state,
             dayContent = { day ->
                 val count = history[day.date]?.completedSessions ?: 0
-                Day(day, count, today, oldestDate, currentDaySelection)
+                Day(day, count, today, oldestDate, currentDaySelection, goal = goal)
             }
         )
         Spacer(modifier = Modifier.height(16.dp))
@@ -152,13 +159,14 @@ fun PomodoroCalendar(
             Text(
                 text = "${
                     history[currentDaySelection.value]?.completedSessions ?: 0
-                } pomodori",
+                } Pomodori",
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(horizontal = 16.dp)
 //                textAlign = TextAlign.End
             )
         }
+        Spacer(modifier = Modifier.height(16.dp))
     }
 }
 
@@ -168,9 +176,9 @@ fun OverviewItem(topContent: String, bottomContent: String) {
         horizontalAlignment = Alignment.CenterHorizontally,
         modifier = Modifier.padding(horizontal = 16.dp)
     ) {
-        Text(text = topContent, style = MaterialTheme.typography.titleLarge)
+        Text(text = topContent, style = MaterialTheme.typography.titleLarge, color = MaterialTheme.colorScheme.onSurface)
         Spacer(modifier = Modifier.height(4.dp))
-        Text(text = bottomContent, style = MaterialTheme.typography.labelSmall)
+        Text(text = bottomContent, style = MaterialTheme.typography.labelSmall, color = MaterialTheme.colorScheme.onSurface)
     }
 }
 
@@ -181,7 +189,8 @@ fun Day(
     count: Int,
     today: LocalDate,
     oldestDate: LocalDate?,
-    currentDaySelection: MutableState<LocalDate>
+    currentDaySelection: MutableState<LocalDate>,
+    goal : Int = 1
 ) {
     val isInstalled = oldestDate != null && day.date >= oldestDate
 
@@ -192,16 +201,16 @@ fun Day(
             .clip(RoundedCornerShape(20.dp))
             .background(
                 when {
-                    count > 0 && day.date == today -> FocusColorsLight.primary
-                    count > 0 -> FocusColorsLight.primary.copy(alpha = 0.4f)
-                    day.date > today -> MaterialTheme.colorScheme.surfaceVariant
+                    count >= goal && day.date == today -> FocusColorsLight.primary
+                    count >= goal -> FocusColorsLight.primary.copy(alpha = 0.4f)
+                    day.date > today -> MaterialTheme.colorScheme.surfaceDim
                     day.date == today -> FocusColorsLight.secondary.copy(alpha = 0.3f)
-                    !isInstalled -> MaterialTheme.colorScheme.surfaceVariant
-                    else -> BreakColorsLight.primary.copy(alpha = 0.25f)
+                    !isInstalled -> MaterialTheme.colorScheme.surfaceDim
+                    else -> BreakColorsLight.primary.copy(alpha = 0.5f)
                 }
             ).border(
                 width =  2.dp,
-                color = if (currentDaySelection.value == day.date) MaterialTheme.colorScheme.onSurfaceVariant else Color.Transparent,
+                color = if (currentDaySelection.value == day.date) FocusColorsLight.secondary else Color.Transparent,
                 shape = RoundedCornerShape(20.dp),
 
             )
@@ -211,7 +220,7 @@ fun Day(
         contentAlignment = Alignment.Center
     ) {
         when {
-            count > 0 -> SelectableImage(
+            count >= goal -> SelectableImage(
                 painter = painterResource(R.drawable.tomato_high),
                 contentDescription = null,
                 modifier = Modifier,

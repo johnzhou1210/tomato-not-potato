@@ -1,6 +1,8 @@
 package com.example.tomatonotpotato.data
 
 import android.util.Log
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -11,6 +13,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.flow.SharingStarted
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.stateIn
 import java.time.LocalDate
 
@@ -24,19 +27,22 @@ enum class BreakType {
 class PomodoroViewModel(
     private val dao: PomodoroDao,
     private val userStatsRepository: UserStatsRepository,
-    private val appOpenRepository: AppOpenRepository
+    private val appOpenRepository: AppOpenRepository,
+    private val pomodoroTimerSettingsFlow: StateFlow<PomodoroTimerSettings>
 ) : ViewModel() {
     companion object {
-        var TODAY = LocalDate.of(2025, 9, 12) // test // For testing only
+        var TODAY = LocalDate.of(2025, 10, 1) // test // For testing only
     }
+
+    val pomodoroTimerSettings: StateFlow<PomodoroTimerSettings> = pomodoroTimerSettingsFlow
 
     private val _state = MutableStateFlow(
         PomodoroState(
-            totalTimeMillis = 25 * 60 * 1000L,
-            timeLeftMillis = 25 * 60 * 1000L,
+            totalTimeMillis = pomodoroTimerSettings.value.focusDuration * 60 * 1000L,
+            timeLeftMillis = pomodoroTimerSettings.value.focusDuration * 60 * 1000L,
             isRunning = false,
             breakType = BreakType.NONE,
-            currentPhase = 0
+            currentPhase = 0,
         )
     )
     val state = _state.asStateFlow()
@@ -82,12 +88,50 @@ class PomodoroViewModel(
     val oldestDate = _oldestDate.asStateFlow()
     val totalPomodori = _totalPomodori.asStateFlow()
 
+    init {
+        viewModelScope.launch {
+            var previousSettings: PomodoroTimerSettings? = null
+
+            // Observe flow and update timer when settings change
+            pomodoroTimerSettingsFlow.collect { newSettings ->
+
+                if (previousSettings != null) {
+                    if (newSettings.focusDuration != previousSettings?.focusDuration && _state.value.breakType == BreakType.NONE) {
+                        _state.value = _state.value.copy(
+                            totalTimeMillis = newSettings.focusDuration * 60 * 1000L,
+                            timeLeftMillis =  if (newSettings.focusDuration * 60 * 1000L < _state.value.timeLeftMillis) newSettings.focusDuration * 60 * 1000L else _state.value.timeLeftMillis
+                        )
+                        previousSettings = newSettings
+                    } else if (newSettings.breakDuration != previousSettings?.breakDuration && _state.value.breakType == BreakType.SHORT_BREAK) {
+                        _state.value = _state.value.copy(
+                            totalTimeMillis = newSettings.breakDuration * 60 * 1000L,
+                            timeLeftMillis =  if (newSettings.breakDuration * 60 * 1000L < _state.value.timeLeftMillis) newSettings.breakDuration * 60 * 1000L else _state.value.timeLeftMillis
+                        )
+                        previousSettings = newSettings
+                    } else if (newSettings.longBreakDuration != previousSettings?.longBreakDuration && _state.value.breakType == BreakType.LONG_BREAK) {
+                        _state.value = _state.value.copy(
+                            totalTimeMillis = newSettings.longBreakDuration * 60 * 1000L,
+                            timeLeftMillis =  if (newSettings.longBreakDuration * 60 * 1000L < _state.value.timeLeftMillis) newSettings.longBreakDuration * 60 * 1000L else _state.value.timeLeftMillis
+                        )
+                        previousSettings = newSettings
+                    }
+                }
+                if (previousSettings == null) {
+                    previousSettings = newSettings
+                }
+
+            }
+        }
+    }
+
+
 
     init {
         viewModelScope.launch {
             _totalPomodori.value = userStatsRepository.getTotalPomodori()
         }
     }
+
     init {
         viewModelScope.launch {
             _oldestDate.value = appOpenRepository.getOldestDate()
@@ -130,17 +174,20 @@ class PomodoroViewModel(
     }
 
     private fun startTimer() {
-        if (timerJob?.isActive == true) return
+        timerJob?.cancel()
         _state.value = _state.value.copy(isRunning = true)
 
         timerJob = viewModelScope.launch {
-            while (_state.value.timeLeftMillis > 0 && _state.value.isRunning) {
-                delay(16L)
+            while (_state.value.timeLeftMillis >= 0 && _state.value.isRunning) {
+                delay(1000) // 16L
                 _state.value = _state.value.copy(
-                    timeLeftMillis = _state.value.timeLeftMillis - 16L
+                    timeLeftMillis = _state.value.timeLeftMillis - 1000 // 16L
                 )
+                Log.d("PomodoroViewModel", "Timer: ${_state.value}")
             }
+            Log.d("PomodoroViewModel", "Timer finished. printing before call: ${_state.value}")
             if (_state.value.timeLeftMillis <= 0) onTimerFinished()
+            Log.d("PomodoroViewModel", "Timer finished. printing after call: ${_state.value}")
         }
     }
 
@@ -151,47 +198,73 @@ class PomodoroViewModel(
 
     fun resetTimer() {
         timerJob?.cancel()
-        setTimer(1, false, BreakType.NONE, 0)
+        setTimer(pomodoroTimerSettings.value.focusDuration, false, BreakType.NONE, 0)
     }
 
     fun advanceToNextPhase() {
-        onTimerFinished()
+        pauseTimer()
+        onTimerFinished(force = true)
     }
 
 
-
-    private fun onTimerFinished() {
-
+    private fun onTimerFinished(force: Boolean = false) {
         when {
             _state.value.breakType == BreakType.SHORT_BREAK -> {
                 setTimer(
-                    25,
+                    mins = pomodoroTimerSettings.value.focusDuration,
                     isRunning = false,
                     breakType = BreakType.NONE,
                     currentPhase = _state.value.currentPhase
                 )
+                if (pomodoroTimerSettings.value.autoStartFocusAfterBreak) {
+                    startTimer()
+                    Log.d( "PomodoroTimer","Autostarted focus 1")
+                } else {
+                    Log.d( "PomodoroTimer","Focus not autostarted 1")
+                }
             }
 
-            _state.value.breakType == BreakType.LONG_BREAK -> resetTimer()
+            _state.value.breakType == BreakType.LONG_BREAK -> {
+                resetTimer()
+                if (pomodoroTimerSettings.value.autoStartFocusAfterLongBreak) {
+                    startTimer()
+                    Log.d( "PomodoroTimer","Autostarted focus 2")
+                } else {
+                    Log.d( "PomodoroTimer","Focus not autostarted 2")
+                }
+            }
 
-            _state.value.currentPhase < 3 -> {
-                recordSession()
+            _state.value.currentPhase < pomodoroTimerSettings.value.pomodorosBeforeLongBreak - 1 -> {
+                if (!force) recordSession()
                 setTimer(
-                    5,
+                    mins = pomodoroTimerSettings.value.breakDuration,
                     isRunning = false,
                     breakType = BreakType.SHORT_BREAK,
                     currentPhase = _state.value.currentPhase + 1
                 )
+                if (pomodoroTimerSettings.value.autoStartBreak) {
+                    startTimer()
+                    Log.d( "PomodoroTimer","Autostarted break 3")
+                } else {
+                    Log.d( "PomodoroTimer","Break not autostarted 3")
+                }
+
             }
 
-            _state.value.currentPhase == 3 -> {
-                recordSession()
+            _state.value.currentPhase == pomodoroTimerSettings.value.pomodorosBeforeLongBreak - 1 -> {
+                if (!force) recordSession()
                 setTimer(
-                    30,
+                    mins = pomodoroTimerSettings.value.longBreakDuration,
                     isRunning = false,
                     breakType = BreakType.LONG_BREAK,
                     currentPhase = _state.value.currentPhase + 1
                 )
+                if (pomodoroTimerSettings.value.autoStartBreak) {
+                    startTimer()
+                    Log.d( "PomodoroTimer","Autostarted break 4")
+                } else {
+                    Log.d( "PomodoroTimer","Break not autostarted 4")
+                }
             }
 
             else -> {
@@ -207,3 +280,11 @@ class PomodoroViewModel(
         timerJob?.cancel()
     }
 }
+
+data class PomodoroState(
+    val totalTimeMillis: Long,
+    val timeLeftMillis: Long,
+    val isRunning: Boolean,
+    val breakType: BreakType,
+    val currentPhase: Int
+)

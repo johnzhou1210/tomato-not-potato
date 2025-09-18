@@ -30,9 +30,6 @@ class PomodoroViewModel(
     private val appOpenRepository: AppOpenRepository,
     private val pomodoroTimerSettingsFlow: StateFlow<PomodoroTimerSettings>
 ) : ViewModel() {
-    companion object {
-        var TODAY = LocalDate.of(2025, 10, 1) // test // For testing only
-    }
 
     val pomodoroTimerSettings: StateFlow<PomodoroTimerSettings> = pomodoroTimerSettingsFlow
 
@@ -48,9 +45,6 @@ class PomodoroViewModel(
     val state = _state.asStateFlow()
 
     private var timerJob: Job? = null
-
-
-//    val TODAY = LocalDate.now()
 
     // Database management
     val records =
@@ -74,7 +68,7 @@ class PomodoroViewModel(
 
     fun recordSession() {
         viewModelScope.launch {
-            addSession(TODAY)
+            addSession(LocalDate.now())
             updateTotalPomodori(userStatsRepository.getTotalPomodori() + 1)
         }
     }

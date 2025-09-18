@@ -37,7 +37,7 @@ class AppOpenRepository(private val dao: AppOpenDayDao) {
     }
 
     suspend fun logToday() {
-        dao.insert(AppOpenDay(PomodoroViewModel.TODAY))
+        dao.insert(AppOpenDay(LocalDate.now()))
 
     }
 

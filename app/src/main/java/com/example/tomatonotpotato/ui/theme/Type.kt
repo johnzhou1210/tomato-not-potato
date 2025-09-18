@@ -12,13 +12,20 @@ val Typography = Typography(
     bodyLarge = TextStyle(
         fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
-        fontSize = 16.sp,
+        fontSize = 18.sp,
+        lineHeight = 24.sp,
+        letterSpacing = 0.5.sp
+    ),
+    titleMedium = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Normal,
+        fontSize = 22.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp
     ),
     displayLarge = TextStyle(
         fontFamily = CustomFontFamily,
-        fontWeight = FontWeight.Bold,
+        fontWeight = FontWeight.ExtraBold,
         fontSize = 64.sp,
         lineHeight = 24.sp,
         letterSpacing = 0.5.sp,
@@ -28,22 +35,44 @@ val Typography = Typography(
         fontWeight = FontWeight.Normal,
         fontSize = 16.sp,
         lineHeight = 24.sp,
-        letterSpacing = 0.sp
+        letterSpacing = (-0.15).sp
     ),
     // Other default text styles to override
     titleLarge = TextStyle(
         fontFamily = CustomFontFamily,
-        fontWeight = FontWeight.Normal,
+        fontWeight = FontWeight.Bold,
         fontSize = 40.sp,
-        lineHeight = 28.sp,
+        lineHeight = 44.sp,
         letterSpacing = 0.sp
     ),
     labelSmall = TextStyle(
         fontFamily = CustomFontFamily,
         fontWeight = FontWeight.Normal,
+        fontSize = 13.sp,
+        lineHeight = 16.sp,
+        letterSpacing = (-0.5).sp
+    ),
+    labelMedium = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Bold,
         fontSize = 14.sp,
         lineHeight = 16.sp,
-        letterSpacing = -(2.0).sp
+        letterSpacing = (-0.5).sp
+    ),
+    displaySmall = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 18.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+    ),
+    displayMedium = TextStyle(
+        fontFamily = CustomFontFamily,
+        fontWeight = FontWeight.Bold,
+        fontSize = 24.sp,
+        lineHeight = 28.sp,
+        letterSpacing = 0.sp
+
     )
 
 )

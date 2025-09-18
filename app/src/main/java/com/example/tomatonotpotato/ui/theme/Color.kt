@@ -14,7 +14,8 @@ val FocusColorsLight = lightColorScheme(
     secondary = Color(0xFF69A16A),
     inversePrimary = Color(0xFF8F3130),
     surfaceDim = Color(0xFFD6C8C8),
-    surfaceBright = Color(0xFFAC8E8E)
+    surfaceBright = Color(0xFFAC8E8E),
+    surfaceTint = Color(0xFFB7ADAD)
 )
 
 val BreakColorsLight = lightColorScheme(
@@ -28,7 +29,8 @@ val BreakColorsLight = lightColorScheme(
     secondary = Color(0xFFBE8C44),
     inversePrimary = Color(0xFF825223),
     surfaceDim = Color(0xFFDBD5CE),
-    surfaceBright = Color(0xFFABA094)
+    surfaceBright = Color(0xFFABA094),
+            surfaceTint = Color(0xFFB7B3AF)
 )
 
 val FocusColorsDark = darkColorScheme(
@@ -42,7 +44,8 @@ val FocusColorsDark = darkColorScheme(
     secondary = Color(0xFF69A16A),
     inversePrimary = Color(0xFF8F3130),
     surfaceDim = Color(0xFF5F3636),
-    surfaceBright = Color(0xFFC1ADAD)
+    surfaceBright = Color(0xFFC1ADAD),
+            surfaceTint = Color(0xFF3C2626)
 )
 
 val BreakColorsDark = darkColorScheme(
@@ -56,7 +59,8 @@ val BreakColorsDark = darkColorScheme(
     secondary = Color(0xFFBE8C44),
     inversePrimary = Color(0xFF825223),
     surfaceDim = Color(0xFF664A31),
-    surfaceBright = Color(0xFFBCB1A3)
+    surfaceBright = Color(0xFFBCB1A3),
+            surfaceTint = Color(0xFF3B2C20)
 )
 
 

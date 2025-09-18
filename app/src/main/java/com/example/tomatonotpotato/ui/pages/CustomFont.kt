@@ -6,7 +6,8 @@ import androidx.compose.ui.text.font.FontWeight
 import com.example.tomatonotpotato.R
 
 val CustomFontFamily = FontFamily(
-    Font(R.font.mini_wakuwaku, FontWeight.Normal),
-    Font(R.font.mini_wakuwaku_maru, FontWeight.Bold)
+    Font(R.font.mini_wakuwaku, FontWeight.Bold),
+    Font(R.font.mini_wakuwaku_maru, FontWeight.ExtraBold),
+    Font(R.font.akazuki_pop, FontWeight.Normal)
 )
 

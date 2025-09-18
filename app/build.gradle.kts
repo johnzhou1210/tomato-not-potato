@@ -61,6 +61,7 @@ dependencies {
     implementation("com.kizitonwose.calendar:compose:2.6.1")
     implementation(libs.androidx.databinding.adapters)
     implementation(libs.androidx.datastore.core)
+    implementation(libs.androidx.compose.foundation)
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")

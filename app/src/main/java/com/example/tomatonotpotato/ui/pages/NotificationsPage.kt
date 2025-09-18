@@ -6,11 +6,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.rounded.ArrowBack
-import androidx.compose.material.icons.filled.Code
-import androidx.compose.material.icons.filled.CoffeeMaker
 import androidx.compose.material.icons.filled.Restore
-import androidx.compose.material.icons.filled.StarRate
-import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -27,40 +23,18 @@ import com.example.tomatonotpotato.ui.components.SettingsColumn
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
-fun AboutPage(onBack: () -> Unit = {}) {
-    val appVersion = "v1.0.0"
-
+fun NotificationsPage(onBack: () -> Unit = {}) {
     val settingsItems: List<SettingItem> = listOf(
         SettingItem.InfoSetting(
-            title = "App version",
-            description = appVersion,
+            title = "Reset settings",
+            description = "Resets all settings to default",
             icon = {
                 Icon(
-                    imageVector = Icons.Default.Tag,
-                    contentDescription = "App version $appVersion",
-                )
-            }
-        ),
-        SettingItem.InfoSetting(
-            title = "Rate this app",
-            description = "Enjoy the app? Please rate it on the Play Store!",
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.StarRate,
+                    imageVector = Icons.Default.Restore,
                     contentDescription = "Reset settings",
                 )
             }
-        ),
-        SettingItem.InfoSetting(
-            title = "Source code",
-            description = "Link to GitHub",
-            icon = {
-                Icon(
-                    imageVector = Icons.Default.Code,
-                    contentDescription = "Reset settings",
-                )
-            }
-        ),
+        )
     )
 
     Scaffold(
@@ -68,7 +42,7 @@ fun AboutPage(onBack: () -> Unit = {}) {
             TopAppBar(
                 title = {
                     Text(
-                        text = "About",
+                        text = "Notifications",
                         style = MaterialTheme.typography.titleMedium,
                         color = MaterialTheme.colorScheme.onSurface
                     )
@@ -85,28 +59,6 @@ fun AboutPage(onBack: () -> Unit = {}) {
             modifier = Modifier.padding(innerPadding),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-
-            Image(
-                painter = painterResource(R.drawable.app_icon_foreground),
-                contentDescription = null,
-                modifier = Modifier
-                    .size(200.dp)
-            )
-            Text(
-                "Tomato, Not Potato",
-                style = MaterialTheme.typography.displayMedium,
-                color = MaterialTheme.colorScheme.onSurface,
-                textAlign = TextAlign.Center
-            )
-            Text(
-                "A practical Pomodoro timer.",
-                textAlign = TextAlign.Center,
-                style = MaterialTheme.typography.bodyMedium,
-                color = MaterialTheme.colorScheme.onSurfaceVariant
-            )
-
-            Spacer(modifier = Modifier.padding(vertical = 16.dp))
-
             SettingsColumn(settingsItems)
         }
 

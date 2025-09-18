@@ -40,6 +40,7 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
         booleanPreferencesKey("auto_start_focus_after_break")
     private val AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY =
         booleanPreferencesKey("auto_start_focus_after_long_break")
+    private val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
 
 
     // Bundled version of Settings
@@ -73,6 +74,24 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
                 autoStartFocusAfterLongBreak = false
             )
         )
+
+    val isFirstLaunch : StateFlow<Boolean?> = dataStore.data.map { preferences ->
+        preferences[FIRST_LAUNCH] ?: true
+    }.stateIn(
+        viewModelScope, SharingStarted.WhileSubscribed(5000), null
+    )
+
+
+
+    // FIRST LAUNCH
+    fun setFirstLaunch(newValue : Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[FIRST_LAUNCH] = newValue
+            }
+        }
+    }
+
 
 
     //　DARK MODE

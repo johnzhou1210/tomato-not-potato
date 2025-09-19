@@ -5,6 +5,7 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.KeyboardArrowRight
@@ -46,7 +47,8 @@ sealed class SettingItem(
         override val description: String,
         override val icon: @Composable () -> Unit = {},
         val isChecked: Boolean,
-        val onCheckedChange: (Boolean) -> Unit
+        val onCheckedChange: (Boolean) -> Unit,
+        val enabled: Boolean = true
     ) : SettingItem(title, description)
 
     data class NumberSetting(
@@ -56,8 +58,8 @@ sealed class SettingItem(
         val unitSingular: String,
         val unitPlural: String,
         val value: Int,
-        val minVal : Int = 0,
-        val maxVal : Int = 999,
+        val minVal: Int = 0,
+        val maxVal: Int = 999,
         val onValueChange: (Int) -> Unit
     ) : SettingItem(title, description)
 
@@ -88,7 +90,8 @@ fun SwitchItem(
     description: String,
     isChecked: Boolean,
     onCheckedChange: (Boolean) -> Unit,
-    icon: @Composable () -> Unit = {}
+    icon: @Composable () -> Unit = {},
+    enabled: Boolean = true
 ) {
     ListItem(
         headlineContent = { Text(title) },
@@ -96,11 +99,12 @@ fun SwitchItem(
         leadingContent = icon,
         trailingContent = {
             Switch(
+                enabled = enabled,
                 checked = isChecked,
                 onCheckedChange = onCheckedChange
             )
         },
-        modifier = Modifier.clickable { onCheckedChange(!isChecked) }
+        modifier = Modifier.clickable { if (enabled) onCheckedChange(!isChecked) }
     )
 }
 
@@ -114,13 +118,13 @@ fun NumberItem(
     onValueChange: (Int) -> Unit,
     icon: @Composable () -> Unit = {},
     description: String,
-    minVal : Int = 0,
-    maxVal : Int = 999
+    minVal: Int = 0,
+    maxVal: Int = 999
 ) {
     var showDialog by remember { mutableStateOf(false) }
     ListItem(
         headlineContent = { Text(title) },
-        supportingContent = {  Text("$value ${if (value == 1) unitSingular else unitPlural}")  },
+        supportingContent = { Text("$value ${if (value == 1) unitSingular else unitPlural}") },
         leadingContent = icon,
         modifier = Modifier.clickable { showDialog = true }
     )
@@ -130,7 +134,7 @@ fun NumberItem(
             title = description,
             currentValue = value,
             units = unitPlural,
-            onDismiss = { showDialog = false},
+            onDismiss = { showDialog = false },
             onConfirm = { newValue ->
                 onValueChange(newValue)
                 showDialog = false
@@ -153,10 +157,12 @@ fun NavigationItem(
         headlineContent = { Text(title) },
         supportingContent = { Text(description) },
         leadingContent = icon,
-        trailingContent = { Icon(
-            imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
-            contentDescription = "Go to $title",
-        ) },
+        trailingContent = {
+            Icon(
+                imageVector = Icons.AutoMirrored.Filled.KeyboardArrowRight,
+                contentDescription = "Go to $title",
+            )
+        },
         modifier = Modifier.clickable { onClick() }
     )
 }
@@ -210,11 +216,6 @@ fun InfoItem(
 }
 
 
-
-
-
-
-
 @Composable
 fun NumberInputDialog(
     title: String,
@@ -222,10 +223,10 @@ fun NumberInputDialog(
     units: String,
     onDismiss: () -> Unit,
     onConfirm: (Int) -> Unit,
-    minVal : Int,
-    maxVal : Int,
+    minVal: Int,
+    maxVal: Int,
 ) {
-    var inputValue by remember{mutableStateOf(TextFieldValue(currentValue.toString()))}
+    var inputValue by remember { mutableStateOf(TextFieldValue(currentValue.toString())) }
     var isInputValid = remember(inputValue) {
         val number = inputValue.text.toIntOrNull()
         number != null && number in minVal..maxVal
@@ -248,7 +249,7 @@ fun NumberInputDialog(
                         inputValue = newValue
                     }
                 },
-                label = {Text("$title ($units)", style = MaterialTheme.typography.labelSmall)},
+                label = { Text("$title ($units)", style = MaterialTheme.typography.labelSmall) },
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
                 colors = TextFieldDefaults.colors(
@@ -271,16 +272,28 @@ fun NumberInputDialog(
                 enabled = isInputValid,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = MaterialTheme.colorScheme.secondary,
-                )
+                ),
+                shape = RoundedCornerShape(18.dp)
             ) {
-                Text("OK", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 8.dp))
+                Text(
+                    "OK",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss, colors = ButtonDefaults.buttonColors(
-                containerColor = ErrorColor,
-            )) {
-                Text("Cancel", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 8.dp))
+            Button(
+                onClick = onDismiss, colors = ButtonDefaults.buttonColors(
+                    containerColor = ErrorColor,
+                ),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Text(
+                    "Cancel",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
     )
@@ -302,27 +315,47 @@ fun ResetDialog(
     AlertDialog(
         containerColor = MaterialTheme.colorScheme.surface,
         title = {
-            Text("Are you sure?", style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurface)
+            Text(
+                "Are you sure?",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurface
+            )
         },
         onDismissRequest = onDismiss,
         text = {
-            Text("Your Pomodoro history will not be deleted.", style = MaterialTheme.typography.bodyMedium)
+            Text(
+                "Your Pomodoro history will not be deleted.",
+                style = MaterialTheme.typography.bodyMedium
+            )
         },
         confirmButton = {
             Button(
                 onClick = onConfirm,
                 colors = ButtonDefaults.buttonColors(
                     containerColor = ErrorColor,
-                )
+                ),
+                shape = RoundedCornerShape(18.dp)
             ) {
-                Text("Yes", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 8.dp))
+                Text(
+                    "Yes",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         },
         dismissButton = {
-            Button(onClick = onDismiss, colors = ButtonDefaults.buttonColors(
-                containerColor = MaterialTheme.colorScheme.secondary,
-            )) {
-                Text("No", style = MaterialTheme.typography.bodyMedium, modifier = Modifier.padding(horizontal = 8.dp))
+            Button(
+                onClick = onDismiss,
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.secondary
+                ),
+                shape = RoundedCornerShape(18.dp)
+            ) {
+                Text(
+                    "No",
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(horizontal = 8.dp)
+                )
             }
         }
     )
@@ -331,7 +364,7 @@ fun ResetDialog(
 
 
 @Composable
-fun SettingsColumn(settingsItems : List<SettingItem>, modifier: Modifier = Modifier) {
+fun SettingsColumn(settingsItems: List<SettingItem>, modifier: Modifier = Modifier) {
     LazyColumn {
         // 2. The `items` function now correctly iterates over your sealed class list.
         items(settingsItems) { item ->
@@ -343,7 +376,8 @@ fun SettingsColumn(settingsItems : List<SettingItem>, modifier: Modifier = Modif
                         description = item.description,
                         isChecked = item.isChecked,
                         onCheckedChange = item.onCheckedChange,
-                        icon = item.icon
+                        icon = item.icon,
+                        enabled = item.enabled
                     )
                 }
 

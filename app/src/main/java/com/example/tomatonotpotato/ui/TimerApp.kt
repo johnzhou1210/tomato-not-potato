@@ -17,7 +17,6 @@ import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.NavigationBarItemDefaults
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -31,15 +30,16 @@ import androidx.navigation.compose.rememberNavController
 import com.example.tomatonotpotato.ui.pages.TimerPage
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.NavHost
-import com.example.tomatonotpotato.data.AppOpenRepository
 import com.example.tomatonotpotato.ui.pages.HistoryPage
 import com.example.tomatonotpotato.data.PomodoroViewModel
 import com.example.tomatonotpotato.data.SettingsViewModel
+import com.example.tomatonotpotato.ui.pages.RequestNotificationsPage
 import com.example.tomatonotpotato.ui.pages.WelcomePage
 
 
 sealed class Screen(val route: String) {
     object Welcome : Screen("Welcome")
+    object RequestNotifications : Screen("RequestNotifications")
     object Timer : Screen("Timer")
     object History : Screen("History")
     object Settings : Screen("Settings")
@@ -54,7 +54,6 @@ fun TimerApp(
     settingsViewModel: SettingsViewModel = viewModel()
 ) {
     val isFirstLaunch by settingsViewModel.isFirstLaunch.collectAsState()
-
     // This is to prevent the app from briefly loading in welcome screen if the user has opened the app before after installation
     if (isFirstLaunch != null) {
         val navController = rememberNavController()
@@ -68,7 +67,7 @@ fun TimerApp(
         )
         Scaffold(
             bottomBar = {
-                if (currentRoute !in listOf(Screen.Welcome.route, Screen.Settings.route)) {
+                if (currentRoute !in listOf(Screen.Welcome.route, Screen.Settings.route, Screen.About.route, Screen.RequestNotifications.route, Screen.Notifications.route)) {
                     NavBar(screens, currentRoute, navController)
                 }
             },
@@ -90,7 +89,8 @@ fun TimerApp(
                     }
                     composable(Screen.Notifications.route) {
                         NotificationsPage(
-                            onBack = { navController.popBackStack() }
+                            onBack = { navController.popBackStack() },
+                            settingsViewModel = settingsViewModel
                         )
                     }
                     composable(Screen.About.route) {
@@ -102,11 +102,27 @@ fun TimerApp(
                     composable(Screen.Welcome.route) {
                         WelcomePage(
                             onGetStarted = {
+                                navController.navigate(Screen.RequestNotifications.route) {
+                                    popUpTo(Screen.Welcome.route) { inclusive = true }
+                                }
+                            }
+                        )
+                    }
+                    composable(Screen.RequestNotifications.route) {
+                        RequestNotificationsPage(
+                            onRefuse = {
                                 settingsViewModel.setFirstLaunch(false)
                                 navController.navigate(Screen.Timer.route) {
                                     popUpTo(Screen.Welcome.route) { inclusive = true }
                                 }
-                            }
+                            },
+                            onAccept = {
+                                settingsViewModel.setFirstLaunch(false)
+                                navController.navigate(Screen.Timer.route) {
+                                    popUpTo(Screen.Welcome.route) { inclusive = true }
+                                }
+                            },
+                            settingsViewModel = settingsViewModel
                         )
                     }
                 }
@@ -120,8 +136,6 @@ fun TimerApp(
             CircularProgressIndicator()
         }
     }
-
-
 }
 
 @Composable
@@ -138,7 +152,6 @@ fun NavBar(screens: List<Screen>, currentRoute: String, navController: NavContro
                     unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
                     unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
                 ),
-
                 icon = {
                     when (screen) {
                         Screen.Timer -> Icon(
@@ -155,7 +168,6 @@ fun NavBar(screens: List<Screen>, currentRoute: String, navController: NavContro
                             Icons.Filled.Settings,
                             contentDescription = null
                         )
-
                         else -> {}
                     }
                 },

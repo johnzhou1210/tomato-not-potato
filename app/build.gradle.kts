@@ -62,6 +62,7 @@ dependencies {
     implementation(libs.androidx.databinding.adapters)
     implementation(libs.androidx.datastore.core)
     implementation(libs.androidx.compose.foundation)
+    implementation(libs.androidx.lifecycle.process)
 
     val roomVersion = "2.6.1"
     implementation("androidx.room:room-runtime:$roomVersion")

@@ -23,7 +23,7 @@ import com.example.tomatonotpotato.data.PomodoroViewModel
 import com.example.tomatonotpotato.data.SettingsViewModel
 import com.example.tomatonotpotato.data.SettingsViewModelFactory
 import com.example.tomatonotpotato.data.UserStatsRepository
-import com.example.tomatonotpotato.data.dataStore
+import com.example.tomatonotpotato.dataStore
 import kotlinx.coroutines.launch
 
 
@@ -60,7 +60,7 @@ class MainActivity : ComponentActivity() {
 
             val settingsViewModel: SettingsViewModel = viewModel(factory = settingsViewModelFactory)
             val pomodoroTimerSettingsFlow = settingsViewModel.pomodoroTimerSettings
-            val pomodoroFactory = PomodoroViewModelFactory(pomodoroDao, userStatsRepository, appOpenRepository, pomodoroTimerSettingsFlow)
+            val pomodoroFactory = PomodoroViewModelFactory(pomodoroDao, userStatsRepository, appOpenRepository, pomodoroTimerSettingsFlow, applicationContext)
 
 
             val pomodoroViewModel: PomodoroViewModel = viewModel(factory = pomodoroFactory)

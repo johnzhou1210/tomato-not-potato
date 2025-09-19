@@ -23,7 +23,13 @@ data class PomodoroTimerSettings(
     val dailyPomodoriGoal: Int,
     val autoStartBreak: Boolean,
     val autoStartFocusAfterBreak: Boolean,
-    val autoStartFocusAfterLongBreak: Boolean
+    val autoStartFocusAfterLongBreak: Boolean,
+    val pushNotificationsEnabled: Boolean = false,
+    val pushNotificationsBreakEnabled: Boolean = false,
+    val pushNotificationsLongBreakEnabled: Boolean = false,
+    val pushNotificationsFocusEnabled: Boolean = false,
+    val pushNotificationsPomodoroLoopEnabled: Boolean = false,
+    val pushNotificationsDailyGoalReachedEnabled: Boolean = false
 )
 
 
@@ -41,7 +47,12 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
     private val AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY =
         booleanPreferencesKey("auto_start_focus_after_long_break")
     private val FIRST_LAUNCH = booleanPreferencesKey("first_launch")
-
+    private val PUSH_NOTIFICATIONS_ENABLED = booleanPreferencesKey("push_notifications_enabled")
+    private val PUSH_NOTIFICATIONS_BREAK_ENABLED = booleanPreferencesKey("push_notifications_break_enabled")
+    private val PUSH_NOTIFICATIONS_LONG_BREAK_ENABLED = booleanPreferencesKey("push_notifications_long_break_enabled")
+    private val PUSH_NOTIFICATIONS_FOCUS_ENABLED = booleanPreferencesKey("push_notifications_focus_enabled")
+    private val PUSH_NOTIFICATIONS_POMODORO_LOOP_ENABLED = booleanPreferencesKey("push_notifications_pomodoro_loop_enabled")
+    private val PUSH_NOTIFICATIONS_DAILY_GOAL_REACHED_ENABLED = booleanPreferencesKey("push_notifications_daily_goal_reached_enabled")
 
     // Bundled version of Settings
     val pomodoroTimerSettings: StateFlow<PomodoroTimerSettings> =
@@ -56,7 +67,14 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
                 dailyPomodoriGoal = preferences[DAILY_POMODORI_GOAL] ?: 1,
                 autoStartBreak = preferences[AUTO_START_BREAK_KEY] ?: false,
                 autoStartFocusAfterBreak = preferences[AUTO_START_FOCUS_AFTER_BREAK_KEY] ?: false,
-                autoStartFocusAfterLongBreak = preferences[AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY] ?: false
+                autoStartFocusAfterLongBreak = preferences[AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY] ?: false,
+                pushNotificationsEnabled = preferences[PUSH_NOTIFICATIONS_ENABLED] ?: false,
+                pushNotificationsBreakEnabled = preferences[PUSH_NOTIFICATIONS_BREAK_ENABLED] ?: true,
+                pushNotificationsLongBreakEnabled = preferences[PUSH_NOTIFICATIONS_LONG_BREAK_ENABLED] ?: true,
+                pushNotificationsFocusEnabled = preferences[PUSH_NOTIFICATIONS_FOCUS_ENABLED] ?: false,
+                pushNotificationsPomodoroLoopEnabled = preferences[PUSH_NOTIFICATIONS_POMODORO_LOOP_ENABLED] ?: false,
+                pushNotificationsDailyGoalReachedEnabled = preferences[PUSH_NOTIFICATIONS_DAILY_GOAL_REACHED_ENABLED] ?: true
+
             )
         }.stateIn(
             viewModelScope,
@@ -71,7 +89,13 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
                 dailyPomodoriGoal = 1,
                 autoStartBreak = false,
                 autoStartFocusAfterBreak = false,
-                autoStartFocusAfterLongBreak = false
+                autoStartFocusAfterLongBreak = false,
+                pushNotificationsEnabled = false,
+                pushNotificationsBreakEnabled = true,
+                pushNotificationsLongBreakEnabled = true,
+                pushNotificationsFocusEnabled = false,
+                pushNotificationsPomodoroLoopEnabled = false,
+                pushNotificationsDailyGoalReachedEnabled = true
             )
         )
 
@@ -192,6 +216,60 @@ class SettingsViewModel(private val dataStore: DataStore<Preferences>) : ViewMod
                 val currentValue = preferences[AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY] ?: false
                 preferences[AUTO_START_FOCUS_AFTER_LONG_BREAK_KEY] = !currentValue
                 println("Auto start focus after long break toggled to: ${!currentValue}")
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS
+    fun setPushNotificationsEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_ENABLED] = enabled
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS BREAK
+    fun setPushNotificationsBreakEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_BREAK_ENABLED] = enabled
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS LONG BREAK
+    fun setPushNotificationsLongBreakEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_LONG_BREAK_ENABLED] = enabled
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS FOCUS
+    fun setPushNotificationsFocusEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_FOCUS_ENABLED] = enabled
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS POMODORO LOOP
+    fun setPushNotificationsPomodoroLoopEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_POMODORO_LOOP_ENABLED] = enabled
+            }
+        }
+    }
+
+    // PUSH NOTIFICATIONS DAILY GOAL REACHED
+    fun setPushNotificationsDailyGoalReachedEnabled(enabled: Boolean) {
+        viewModelScope.launch {
+            dataStore.edit { preferences ->
+                preferences[PUSH_NOTIFICATIONS_DAILY_GOAL_REACHED_ENABLED] = enabled
             }
         }
     }

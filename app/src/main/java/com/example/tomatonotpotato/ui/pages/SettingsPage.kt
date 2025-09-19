@@ -1,8 +1,6 @@
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.BeachAccess
@@ -34,13 +32,8 @@ import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.tomatonotpotato.data.SettingsViewModel
 import com.example.tomatonotpotato.ui.Screen
-import com.example.tomatonotpotato.ui.components.InfoItem
-import com.example.tomatonotpotato.ui.components.NavigationItem
-import com.example.tomatonotpotato.ui.components.NumberItem
-import com.example.tomatonotpotato.ui.components.ResetItem
 import com.example.tomatonotpotato.ui.components.SettingItem
 import com.example.tomatonotpotato.ui.components.SettingsColumn
-import com.example.tomatonotpotato.ui.components.SwitchItem
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
@@ -62,6 +55,7 @@ fun SettingsPage(
     val autoStartBreak = pomodoroTimerSettings.value.autoStartBreak
     val autoStartFocusAfterBreak = pomodoroTimerSettings.value.autoStartFocusAfterBreak
     val autoStartFocusAfterLongBreak = pomodoroTimerSettings.value.autoStartFocusAfterLongBreak
+
 
     val settingsItems: List<SettingItem> = listOf(
         SettingItem.SwitchSetting(

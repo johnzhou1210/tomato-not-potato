@@ -65,7 +65,8 @@ fun WelcomePage(
             modifier = Modifier.padding(horizontal = 16.dp, vertical = 16.dp).size(width = 250.dp, height = 50.dp),
             colors = androidx.compose.material3.ButtonDefaults.buttonColors(
                 containerColor = MaterialTheme.colorScheme.secondary,
-            )
+            ),
+            shape = RoundedCornerShape(18.dp)
         ) {
             Text("Get Started", style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.surface)
         }

@@ -1,0 +1,40 @@
+package com.johnzhou.tomatonotpotato.ui.theme
+
+import androidx.compose.foundation.isSystemInDarkTheme
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.lifecycle.viewmodel.compose.viewModel
+import com.johnzhou.tomatonotpotato.data.BreakType
+import com.johnzhou.tomatonotpotato.data.PomodoroViewModel
+import com.johnzhou.tomatonotpotato.data.SettingsViewModel
+
+
+@Composable
+fun TomatoNotPotatoTheme(
+    darkTheme: Boolean = isSystemInDarkTheme(),
+    // Dynamic color is available on Android 12+
+    dynamicColor: Boolean = true,
+    pomodoroViewModel: PomodoroViewModel = viewModel(),
+    settingsViewModel: SettingsViewModel = viewModel(),
+    content: @Composable () -> Unit
+) {
+    val state by pomodoroViewModel.state.collectAsState()
+    val pomodoroTimerSettings by settingsViewModel.pomodoroTimerSettings.collectAsState()
+    val isDarkMode = pomodoroTimerSettings.isDarkMode
+    val colors  = when {
+        isDarkMode -> { // Dark mode
+           if (state.breakType != BreakType.NONE) BreakColorsDark else FocusColorsDark
+        }
+        else -> { // L:ght mode
+           if (state.breakType != BreakType.NONE) BreakColorsLight else FocusColorsLight
+        }
+    }
+
+    MaterialTheme(
+        colorScheme = colors,
+        typography = Typography,
+        content = content,
+    )
+}

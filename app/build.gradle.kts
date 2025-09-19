@@ -6,11 +6,11 @@ plugins {
 }
 
 android {
-    namespace = "com.example.tomatonotpotato"
+    namespace = "com.johnzhou.tomatonotpotato"
     compileSdk = 36
 
     defaultConfig {
-        applicationId = "com.example.tomatonotpotato"
+        applicationId = "com.johnzhou.tomatonotpotato"
         minSdk = 26
         targetSdk = 36
         versionCode = 1

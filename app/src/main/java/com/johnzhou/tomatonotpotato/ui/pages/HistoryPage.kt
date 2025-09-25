@@ -53,38 +53,185 @@ import java.time.YearMonth
 import java.time.format.DateTimeFormatter
 import java.time.format.TextStyle
 import java.util.Locale
+import androidx.compose.foundation.layout.BoxWithConstraints
 
 private val daySize = 18.dp
 
+
+
 @Composable
 fun HistoryPage(pomodoroViewModel: PomodoroViewModel = viewModel()) {
-//    val today = remember { LocalDate.now() }
     val today = LocalDate.now()
     val oldestDate by pomodoroViewModel.oldestDate.collectAsState()
-    // Ensure range covers 2 weeks before and after today
-    val startMonth = remember { YearMonth.from(oldestDate) ?: today }
+    val startMonth = remember(oldestDate) { YearMonth.from(oldestDate ?: today) }
     val endMonth = remember { YearMonth.from(today) }
 
     val currentDaySelection = remember { mutableStateOf(today) }
 
     val daysOfWeek = remember { daysOfWeek() }
     val state = rememberCalendarState(
-        startMonth = startMonth as YearMonth,
+        startMonth = startMonth,
         endMonth = endMonth,
         firstVisibleMonth = YearMonth.from(today),
         firstDayOfWeek = daysOfWeek.first()
     )
 
+    // Use BoxWithConstraints to decide which layout to use
+    BoxWithConstraints {
+        if (maxWidth > maxHeight) {
+            LandscapeHistoryLayout(
+                state = state,
+                viewModel = pomodoroViewModel,
+                today = today,
+                oldestDate = oldestDate,
+                currentDaySelection = currentDaySelection,
+            )
+        } else {
+            PortraitHistoryLayout(
+                state = state,
+                viewModel = pomodoroViewModel,
+                today = today,
+                oldestDate = oldestDate,
+                currentDaySelection = currentDaySelection,
+            )
+        }
+    }
+}
 
 
+
+
+
+
+
+@Composable
+fun PortraitHistoryLayout(
+    state: CalendarState,
+    viewModel: PomodoroViewModel,
+    today: LocalDate,
+    oldestDate: LocalDate?,
+    currentDaySelection: MutableState<LocalDate>,
+) {
     PomodoroCalendar(
+        viewModel = viewModel,
         state = state,
-        viewModel = pomodoroViewModel,
         today = today,
         oldestDate = oldestDate,
-        currentDaySelection = currentDaySelection,
+        currentDaySelection = currentDaySelection
     )
 }
+
+@Composable
+fun LandscapeHistoryLayout(
+    state: CalendarState,
+    viewModel: PomodoroViewModel,
+    today: LocalDate,
+    oldestDate: LocalDate?,
+    currentDaySelection: MutableState<LocalDate>,
+) {
+    val records by viewModel.records.collectAsState()
+    val totalPomodori by viewModel.totalPomodori.collectAsState()
+    val pomodoroTimerSettings = viewModel.pomodoroTimerSettings.collectAsState()
+
+    val goal = pomodoroTimerSettings.value.dailyPomodoriGoal
+    val history = remember(records) {
+        records.associateBy { it.date }
+    }
+
+    val currStreak = getStreak(history, today)
+    viewModel.updateBestStreak(currStreak)
+
+    // The root is now a Row
+    Row(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.spacedBy(24.dp)
+    ) {
+        // Left side: The Calendar
+        Column(
+            modifier = Modifier.weight(2f).padding(start=24.dp)
+        ) {
+            HorizontalCalendar(
+                monthHeader = { calendarMonth ->
+                    val daysOfWeek = calendarMonth.weekDays.first().map { it.date.dayOfWeek }
+                    Column(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        Text(
+                            "${
+                                calendarMonth.yearMonth.month.getDisplayName(
+                                    TextStyle.FULL_STANDALONE,
+                                    Locale.getDefault()
+                                )
+                            } ${calendarMonth.yearMonth.year}",
+                            style = MaterialTheme.typography.displayMedium,
+                            color = MaterialTheme.colorScheme.onSurface
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        DaysOfWeekTitle(daysOfWeek)
+                        Spacer(modifier = Modifier.height(8.dp))
+                    }
+                },
+                state = state,
+                dayContent = { day ->
+                    val count = history[day.date]?.completedSessions ?: 0
+                    Day(
+                        day, count, today, oldestDate, currentDaySelection,
+                        goal = goal,
+                        isThisMonth = day.position == DayPosition.MonthDate
+                    )
+                },
+            )
+        }
+
+        // Right side: Stats and Info
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center,
+        ) {
+            Text(
+                text = "History",
+                style = MaterialTheme.typography.titleLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(32.dp))
+            Row {
+                OverviewItem(topContent = "$currStreak", bottomContent = "Current streak")
+                OverviewItem(
+                    topContent = "${viewModel.bestStreak.intValue}",
+                    bottomContent = "Best streak"
+                )
+                OverviewItem(topContent = "$totalPomodori", bottomContent = "Total Pomodori")
+            }
+            Spacer(modifier = Modifier.height(32.dp))
+            Text(
+                text = formatDate(currentDaySelection.value.toString()),
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = "${history[currentDaySelection.value]?.completedSessions ?: 0} Pomodori",
+                style = MaterialTheme.typography.bodyMedium,
+                color = MaterialTheme.colorScheme.onSurfaceVariant,
+            )
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
 
 fun getStreak(history: Map<LocalDate, PomodoroRecord>, today: LocalDate): Int {
     var result = 0

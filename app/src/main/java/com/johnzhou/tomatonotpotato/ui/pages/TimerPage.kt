@@ -9,6 +9,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.BoxWithConstraints
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -44,6 +45,8 @@ import androidx.compose.ui.unit.sp
 import com.johnzhou.tomatonotpotato.R
 import com.johnzhou.tomatonotpotato.R.drawable.tomato_high
 import com.johnzhou.tomatonotpotato.data.BreakType
+import com.johnzhou.tomatonotpotato.data.PomodoroState
+import com.johnzhou.tomatonotpotato.data.PomodoroTimerSettings
 import com.johnzhou.tomatonotpotato.data.PomodoroViewModel
 import com.johnzhou.tomatonotpotato.ui.Dot
 import java.text.SimpleDateFormat
@@ -51,14 +54,42 @@ import java.util.Date
 import java.util.Locale
 
 
+
 @Composable
 fun TimerPage(pomodoroViewModel: PomodoroViewModel) {
     val state by pomodoroViewModel.state.collectAsState()
     val pomodoroTimerSettings by pomodoroViewModel.pomodoroTimerSettings.collectAsState()
+
+    BoxWithConstraints {
+        // We check if the width is greater than the height (a good proxy for landscape)
+        // Or you can use a fixed breakpoint like `maxWidth > 600.dp`
+        if (maxWidth > maxHeight) {
+            LandscapeLayout(
+                state = state,
+                pomodoroTimerSettings = pomodoroTimerSettings,
+                pomodoroViewModel = pomodoroViewModel
+            )
+        } else {
+            PortraitLayout(
+                state = state,
+                pomodoroTimerSettings = pomodoroTimerSettings,
+                pomodoroViewModel = pomodoroViewModel
+            )
+        }
+    }
+}
+
+
+
+@Composable
+fun PortraitLayout(
+    state: PomodoroState,
+    pomodoroTimerSettings: PomodoroTimerSettings,
+    pomodoroViewModel: PomodoroViewModel
+) {
     val formattedTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(
         Date(state.timeLeftMillis)
     )
-
     val isFinished = state.timeLeftMillis <= 0
     val targetProgress = if (isFinished) 0f else state.timeLeftMillis.toFloat() / state.totalTimeMillis
     val animatedProgress by animateFloatAsState(
@@ -66,13 +97,9 @@ fun TimerPage(pomodoroViewModel: PomodoroViewModel) {
         animationSpec = tween(durationMillis = 500, easing = EaseOutQuad)
     )
 
-
-
-
     Column(
         modifier = Modifier.fillMaxSize(),
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Spacer(modifier = Modifier.height(36.dp))
         Text(
@@ -92,7 +119,6 @@ fun TimerPage(pomodoroViewModel: PomodoroViewModel) {
             style = MaterialTheme.typography.displayLarge,
             color = MaterialTheme.colorScheme.onSurface
         )
-
         Row {
             for (phase in 1..pomodoroTimerSettings.pomodorosBeforeLongBreak) {
                 Dot(
@@ -100,66 +126,140 @@ fun TimerPage(pomodoroViewModel: PomodoroViewModel) {
                     modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp)
                 )
             }
-
         }
-
-        Spacer(modifier = Modifier.height(24.dp))
-
-        Box(contentAlignment = Alignment.Center) {
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.padding(vertical = 24.dp)) {
             CircularProgressIndicator(
                 progress = animatedProgress,
                 modifier = Modifier.size(360.dp),
                 color = MaterialTheme.colorScheme.primary,
                 strokeWidth = 8.dp
             )
-
             Image(
-                painter = if (state.breakType != BreakType.NONE) painterResource(id = R.drawable.potato_small) else painterResource(
-                    id = tomato_high,
-                ),
+                painter = if (state.breakType != BreakType.NONE) painterResource(id = R.drawable.potato_small) else painterResource(id = R.drawable.tomato_high),
                 contentDescription = null,
-                modifier = Modifier.size(400.dp).offset(if (state.breakType == BreakType.NONE) (-8).dp else (0).dp))
-
-
+                modifier = Modifier.size(400.dp).offset(if (state.breakType == BreakType.NONE) (-8).dp else 0.dp)
+            )
         }
 
+        // The weighted spacer works correctly here in portrait
+        Spacer(modifier = Modifier.weight(1f))
+
+        TimerControls(pomodoroViewModel, state.isRunning)
+
         Spacer(modifier = Modifier.height(32.dp))
+    }
+}
 
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(48.dp),
-            verticalAlignment = Alignment.CenterVertically
+@Composable
+fun LandscapeLayout(
+    state: PomodoroState,
+    pomodoroTimerSettings: PomodoroTimerSettings,
+    pomodoroViewModel: PomodoroViewModel
+) {
+    val formattedTime = SimpleDateFormat("mm:ss", Locale.getDefault()).format(
+        Date(state.timeLeftMillis)
+    )
+    val isFinished = state.timeLeftMillis <= 0
+    val targetProgress = if (isFinished) 0f else state.timeLeftMillis.toFloat() / state.totalTimeMillis
+    val animatedProgress by animateFloatAsState(
+        targetValue = targetProgress,
+        animationSpec = tween(durationMillis = 500, easing = EaseOutQuad)
+    )
+
+    Row(
+        modifier = Modifier.fillMaxSize(),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceEvenly
+    ) {
+        // Left Side of the Row
+        Box(contentAlignment = Alignment.Center, modifier = Modifier.weight(1f)) {
+            CircularProgressIndicator(
+                progress = animatedProgress,
+                modifier = Modifier.size(400.dp),
+                color = MaterialTheme.colorScheme.primary,
+                strokeWidth = 8.dp
+            )
+            Image(
+                painter = if (state.breakType != BreakType.NONE) painterResource(id = R.drawable.potato_small) else painterResource(id = R.drawable.tomato_high),
+                contentDescription = null,
+                modifier = Modifier.size(400.dp).offset(if (state.breakType == BreakType.NONE) (-8).dp else 0.dp)
+            )
+        }
+
+        // Right Side of the Row
+        Column(
+            modifier = Modifier.weight(1f),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
         ) {
-            IconButton(
-                onClick = { pomodoroViewModel.resetTimer() },
-                modifier = Modifier.size(42.dp),
-                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.Replay,
-                    contentDescription = "Reset Pomodoro Timer",
-                    modifier = Modifier.fillMaxSize(),
-
+            Text(
+                text = when (state.breakType) {
+                    BreakType.SHORT_BREAK -> "Short Break"
+                    BreakType.LONG_BREAK -> "Long Break"
+                    else -> "Focus"
+                },
+                fontSize = 35.sp,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Spacer(modifier = Modifier.height(8.dp))
+            Text(
+                text = formattedTime,
+                fontSize = 80.sp,
+                fontWeight = FontWeight.Bold,
+                style = MaterialTheme.typography.displayLarge,
+                color = MaterialTheme.colorScheme.onSurface
+            )
+            Row {
+                for (phase in 1..pomodoroTimerSettings.pomodorosBeforeLongBreak) {
+                    Dot(
+                        color = if (state.currentPhase >= phase) MaterialTheme.colorScheme.surfaceBright else MaterialTheme.colorScheme.surfaceDim,
+                        modifier = Modifier.padding(horizontal = 4.dp, vertical = 12.dp)
                     )
+                }
             }
+            Spacer(modifier = Modifier.height(24.dp))
+            TimerControls(pomodoroViewModel, state.isRunning)
+        }
+    }
+}
 
-            IconButton(onClick = { pomodoroViewModel.toggleTimer() }, modifier = Modifier.size(96.dp),
-                colors = IconButtonDefaults.iconButtonColors(contentColor = if (!state.isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inversePrimary)) {
-                AnimatedPlayPauseIcon(state.isRunning)
-            }
+// Extracted controls to a separate composable for reuse
+@Composable
+fun TimerControls(pomodoroViewModel: PomodoroViewModel, isRunning: Boolean) {
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(48.dp),
+        verticalAlignment = Alignment.CenterVertically,
+    ) {
+        IconButton(
+            onClick = { pomodoroViewModel.resetTimer() },
+            modifier = Modifier.size(42.dp),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.Replay,
+                contentDescription = "Reset Pomodoro Timer",
+                modifier = Modifier.fillMaxSize()
+            )
+        }
 
-            IconButton(
-                onClick = { pomodoroViewModel.advanceToNextPhase() },
-                modifier = Modifier.size(42.dp),
-                colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
-            ) {
-                Icon(
-                    imageVector = Icons.Filled.SkipNext,
-                    contentDescription = "Next Phase",
-                    modifier = Modifier.fillMaxSize()
-                )
-            }
+        IconButton(
+            onClick = { pomodoroViewModel.toggleTimer() },
+            modifier = Modifier.size(96.dp),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = if (!isRunning) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.inversePrimary)
+        ) {
+            AnimatedPlayPauseIcon(isRunning)
+        }
 
-
+        IconButton(
+            onClick = { pomodoroViewModel.advanceToNextPhase() },
+            modifier = Modifier.size(42.dp),
+            colors = IconButtonDefaults.iconButtonColors(contentColor = MaterialTheme.colorScheme.onSurfaceVariant)
+        ) {
+            Icon(
+                imageVector = Icons.Filled.SkipNext,
+                contentDescription = "Next Phase",
+                modifier = Modifier.fillMaxSize()
+            )
         }
     }
 }

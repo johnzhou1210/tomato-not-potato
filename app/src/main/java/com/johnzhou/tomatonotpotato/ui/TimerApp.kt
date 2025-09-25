@@ -75,7 +75,7 @@ fun TimerApp(
             Box(
                 modifier = Modifier
                     .padding(innerPadding)
-                    .padding(start = 0.dp, end = 0.dp, top = 14.dp, bottom = 0.dp)
+                    .padding(start = 0.dp, end = 0.dp, top = 16.dp, bottom = 0.dp)
             ) {
                 NavHost(navController = navController, startDestination = startDestination) {
                     composable(Screen.Timer.route) { TimerPage(pomodoroViewModel = pomodoroViewModel) }
